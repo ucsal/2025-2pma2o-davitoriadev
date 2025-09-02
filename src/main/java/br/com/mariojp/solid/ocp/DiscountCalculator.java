@@ -1,11 +1,28 @@
 package br.com.mariojp.solid.ocp;
 
+import java.util.Map;
+
 public class DiscountCalculator {
-    public double apply(double amount, CustomerType type){
-        switch (type){
-            case REGULAR: return amount * 0.95;
-            case PREMIUM: return amount * 0.90;
-            default: return amount;
+
+    private final Map<CustomerType, DiscountPolicy> policies;
+
+    public DiscountCalculator() {
+        this(Map.of(
+            CustomerType.REGULAR, new RegularPolicy(),
+            CustomerType.PREMIUM, new PremiumPolicy(),
+            CustomerType.PARTNER, new PartnerPolicy()
+        ));
+    }
+
+    public DiscountCalculator(Map<CustomerType, DiscountPolicy> policies) {
+        this.policies = policies;
+    }
+
+    public double apply(double amount, CustomerType type) {
+        DiscountPolicy policy = policies.get(type);
+        if (policy != null) {
+            return policy.apply(amount);
         }
+        return amount;
     }
 }
